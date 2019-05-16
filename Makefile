@@ -12,5 +12,4 @@ install: tao
 
 .PHONY: uninstall
 uninstall:
-	rm ~/.config/tao.conf
 	rm /usr/local/bin/tao
