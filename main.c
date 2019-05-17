@@ -110,17 +110,26 @@ int main(int argc, char **argv) {
   const char* mimetype = magic_file(magic, file);
   
   // Get the program associated with the mime type from the config file
-  char* configLocation = malloc(strlen(getenv("HOME")) + strlen("/.config/tao.conf") + 1);
-  sprintf(configLocation, "%s/.config/tao.conf", getenv("HOME"));
+  char* confDir;
+  char prefix[9];
+  prefix[0] = '\0';
+  if ( getenv("XDG_CONFIG_HOME") != NULL )
+   confDir = getenv("XDG_CONFIG_HOME");
+  else {
+    confDir = getenv("HOME");
+    strcpy(prefix, "/.config");
+  }
+  char* configLocation = malloc(strlen(confDir) + strlen(prefix) + strlen("/tao.conf") + 1);
+  sprintf(configLocation, "%s%s/tao.conf", confDir, prefix);
   KVPair config = initParser(configLocation);
-  free(configLocation);
 
   // If the file is not found, throw an error and exit
   if (config.file == NULL) {
-    printf("Cannot locate config file at '~/.config/tao.conf'\n");
+    printf("Cannot locate config file at '%s'\n", configLocation);
     magic_close(magic);
     return EXIT_FAILURE;
   }
+  free(configLocation);
   
   char ptype[5];
 
