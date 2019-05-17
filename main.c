@@ -16,6 +16,16 @@ KVPair initParser(char* filename) {
   return (KVPair){malloc(1), malloc(1), fopen(filename, "r")};
 };
 
+int endswith(char* str, char* substr, int dir) {
+    if (dir)
+      return strncmp(str, substr, strlen(substr)) == 0;
+    else {
+      size_t slen = strlen(str);
+      size_t sublen = strlen(substr);
+      return (slen >= sublen) && (memcmp(substr, str + slen  - sublen, sublen) == 0);
+    }
+}
+
 char* stripstr(char* str, int direction, char delimeter) {
   size_t len = strlen(str);
   int index = direction ? 0 : len - 1;
@@ -70,8 +80,10 @@ void cleanKV(KVPair* pair) {
   free(pair -> val);
   if (pair -> file) {
     fclose(pair -> file);
-    free(pair -> file);
   }
+}
+
+void runCommand(const char* file, KVPair config, struct magic_set* magic) {
 }
 
 int main(int argc, char **argv) {
@@ -88,7 +100,7 @@ int main(int argc, char **argv) {
   }
 
   // Get the files mime type
-  struct magic_set *magic = magic_open(MAGIC_MIME_TYPE | MAGIC_CHECK);
+  struct magic_set* magic = magic_open(MAGIC_MIME_TYPE | MAGIC_CHECK);
   magic_load(magic, NULL);
   const char* mimetype = magic_file(magic, file);
   
@@ -105,23 +117,41 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
   
+  char ptype[5];
+
   for (;;) {
     nextPair(&config);
-    if (strcmp(config.key, mimetype) == 0) {
+    if (strchr(config.key, ':') == NULL) {
+      printf("Missing colon in key '%s'", config.key);
+      continue;
+    }
+    
+    // TODO: Stop reallocating for every rule 
+    char* kdata = strdup(config.key);
+    strncpy(ptype, strtok(kdata, ":"), 5);
+    strcpy(kdata, strtok(NULL, ""));
+    if (
+        (strncmp(ptype, "mime", 4) == 0 && strcmp(kdata, mimetype) == 0) ||
+        ((strncmp(ptype, "ends", 4) == 0) && endswith((char*)file, kdata, 0))   ||
+        ((strncmp(ptype, "strt", 4) == 0) && endswith((char*)file, kdata, 1))
+    ) {
       // Run the associated program with the filename as an argument
       char* cmd = malloc(strlen(config.val) + strlen(file) + 2);
       sprintf(cmd, "%s %s", config.val, file);
       system(cmd);
       free(cmd);
+      free(kdata);
       cleanKV(&config);
       magic_close(magic);
-      return EXIT_SUCCESS;
+      exit(EXIT_SUCCESS);
     }
+
+    free(kdata);
     if (config.file == NULL) 
       break;
   }
   
-  printf("No program associated with mimetype: %s\n", mimetype);
+  printf("File does not match any patterns", mimetype);
   // Cleanup and exit
   cleanKV(&config);
   magic_close(magic);
