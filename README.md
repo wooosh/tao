@@ -21,18 +21,16 @@ Instead of being configured with `.desktop` files like xdg-open, tao is configur
 - Comments are indicated with # at the beginning of a line
 - Comments cannot be placed after a rule
 
-The current format of these rules is `mimetype = program`.
+The current format of these rules is `mode:param = program`.
 ```
-# Examples
-text/x-c = vi
-text/plain = vi
-image/jpeg = feh
-image/gif = feh
-inode/directory = ls
+# Filename endswith is ends:string
+ends:.html = code
+# Filename startswith is strt: string
+strt:LICENSE = license-pick
+# Mime types are represented with mime:mimetype
+mime:text/x-c = vim
 ```
 ## Planned Features
-- [ ] Filename startswith selector
-- [ ] Filename endswith selector
 - [ ] `printf` style substution of filenames
 - [ ] Change mime type matching to be startswith
 - [ ] Add optional regex support
