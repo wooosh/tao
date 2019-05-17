@@ -8,12 +8,14 @@
 
 typedef struct KVPair {
   char* key;
+  size_t keysize;
   char* val;
+  size_t valsize;
   FILE* file;
 } KVPair;
 
 KVPair initParser(char* filename) {
-  return (KVPair){malloc(1), malloc(1), fopen(filename, "r")};
+  return (KVPair){malloc(1), 1, malloc(1), 1, fopen(filename, "r")};
 };
 
 int endswith(char* str, char* substr, int dir) {
@@ -44,9 +46,9 @@ void nextPair(KVPair* pair) {
   size_t len = 0;
   // Find a line that isn't a comment or blank line until we hit the end of the file
   while (line == NULL || line[0] == '#' || line[0] == '\n')
-    if (getline(&line, &len, pair -> file) == -1) {
-      fclose(pair -> file);
-      pair -> file = NULL;
+    if (getline(&line, &len, pair->file) == -1) {
+      fclose(pair->file);
+      pair->file = NULL;
       free(line);
       return;
     }
@@ -63,15 +65,21 @@ void nextPair(KVPair* pair) {
   
   char* key = stripstr(strtok(line, "="), 0, ' ');
   char* val = stripstr(strtok(NULL, ""), 1, ' ');
-   
+  size_t keysize = strlen(key) + 1;
+  size_t valsize = strlen(val) + 1;
+
   // Allocate more memory if the structure members are not large enough
-  if (sizeof(pair -> key) < strlen(key) + 1) 
-    pair -> key = realloc(pair -> key, strlen(key) + 1);
-  if (sizeof(pair -> val) < strlen(val) + 1)
-    pair -> val = realloc(pair -> val, strlen(val) + 1);
-  
-  strcpy(pair -> key, key);
-  strcpy(pair -> val, val);
+  if (pair->keysize < keysize) {
+    pair->key = realloc(pair->key, keysize);
+    pair->keysize = keysize;
+  }
+  if (pair->valsize < valsize) {
+    pair->val = realloc(pair->val, valsize);
+    pair->valsize = valsize;
+  }
+
+  strcpy(pair->key, key);
+  strcpy(pair->val, val);
   free(line);
 };
 
@@ -81,9 +89,6 @@ void cleanKV(KVPair* pair) {
   if (pair -> file) {
     fclose(pair -> file);
   }
-}
-
-void runCommand(const char* file, KVPair config, struct magic_set* magic) {
 }
 
 int main(int argc, char **argv) {
