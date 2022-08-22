@@ -4,10 +4,10 @@ Tao is a very basic xdg-open replacement written in about 100 lines of C.
 Tao's only dependency is libmagic.
 After installing libmagic, run the following commands:
 ```
-git clone https://github.com/sfplayer247/tao
+git clone https://github.com/wooosh/tao
 cd tao
 make # Compiles tao
-make config # Generates config files in your home directory
+make config # Copies the config file to $XDG_CONFIG_HOME, and if unset, ~/.config
 sudo make install # Copies the tao binary to /usr/local/bin
 ```
 To remove tao, run the following commands:
