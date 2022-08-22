@@ -1,5 +1,7 @@
+PREFIX = /usr/local
+
 tao: main.c
-	gcc main.c -lmagic -g -o tao
+	gcc tao.c -lmagic -g -o tao
 
 XDG_CONFIG_HOME ?= ${HOME}/.config
 
@@ -10,8 +12,9 @@ config: example.conf
 
 .PHONY: install
 install: tao
-	cp tao /usr/local/bin/tao
+	mkdir -p ${DESTDIR}${PREFIX}/bin/
+	cp tao ${DESTDIR}${PREFIX}/bin/tao
 
 .PHONY: uninstall
 uninstall:
-	rm /usr/local/bin/tao
+	rm ${DESTDIR}${PREFIX}/bin/tao
