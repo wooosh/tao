@@ -15,4 +15,4 @@ install: tao
 uninstall:
 	rm ${DESTDIR}${PREFIX}/bin/tao
 
-.PHONY config install uninstall
+.PHONY: config install uninstall
