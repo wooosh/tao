@@ -1,7 +1,7 @@
 PREFIX = /usr/local
 XDG_CONFIG_HOME ?= ${HOME}/.config
 
-tao: tao.c
+all: tao.c
 	gcc tao.c -lmagic -g -o tao
 
 config: example.conf
