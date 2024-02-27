@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 // External Libraries
-#include <magic.h>
+#include "/usr/local/include/magic.h"
 
 typedef struct KVPair {
   char* key;
